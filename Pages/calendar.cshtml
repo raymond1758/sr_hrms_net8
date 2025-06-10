@@ -5,16 +5,34 @@
 }
 
 <div class="row">
-    <div class="ms-3">
-        <h3 class="mb-0 h4 font-weight-bolder">行事曆</h3>
-        <p class="mb-4">
-            資料來自政府資料開放平臺.
-        </p>
+    <div class="d-flex ms-3 align-items-end">
+        <h4 class="mb-0 font-weight-bolder">行事曆</h4>
+
     </div>
 </div>
 
-<div class="row">
-    <div class="ms-3">
-        <input type="file" class="form-control" id="fileUpload" />
+<!-- CSV File Upload Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex">
+                <h6 class="mb-0">上傳行事曆 CSV 檔案</h6>
+                <span class="mb-0 ms-2 small text-secondary">(下載自<a href="https://data.gov.tw/dataset/14718" class="link-primary" target="_blank">政府行政機關辦公日曆表</a>. 請確認檔案格式正確再上傳)</span>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="d d-flex mb-3 align-items-center">
+                        <label for="csvFile" class="form-label text-nowrap mb-0">選擇 CSV 檔案</label>
+                        <input type="file" class="form-control border mb-0 ms-3" id="csvFile" name="csvFile" accept=".csv" required>
+                        <button type="reset" class="btn btn-secondary mb-0 ms-3 d-inline-flex align-items-center text-nowrap">
+                            <i class="fas fa-times ms-0 me-4"> 清除</i>
+                        </button>
+                        <button type="submit" class="btn btn-primary mb-0 ms-3 d-inline-flex align-items-center text-nowrap">
+                            <i class="fas fa-upload ms-0 me-4"> 上傳檔案</i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
