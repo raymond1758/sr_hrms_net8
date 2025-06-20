@@ -20,15 +20,15 @@
                 <span class="mb-0 ms-2 small text-secondary">(下載自<a href="https://data.gov.tw/dataset/14718" class="link-primary" target="_blank">政府行政機關辦公日曆表</a>. 請確認檔案格式正確再上傳)</span>
             </div>
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
-                    <div class="d d-flex mb-3 align-items-center">
-                        <label for="csvFile" class="form-label text-nowrap mb-0">選擇 CSV 檔案</label>
-                        <input type="file" class="form-control border mb-0 ms-3" id="csvFile" name="csvFile" accept=".csv" required>
+                <form method="post" enctype="multipart/form-data" asp-page-handler="SubmitCSV">
+                    <div class="d d-flex mb-3 align-items-center">                        
+                        <label for="csvFile" class="form-label text-nowrap mb-0">選擇 CSV 檔案</label>    
+                        <input type="file" class="form-control border mb-0 ms-3" accept=".csv" asp-for="UploadFile" required>
                         <button type="reset" class="btn btn-secondary mb-0 ms-3 d-inline-flex align-items-center text-nowrap">
                             <i class="fas fa-times ms-0 me-4"> 清除</i>
                         </button>
                         <button type="submit" class="btn btn-primary mb-0 ms-3 d-inline-flex align-items-center text-nowrap">
-                            <i class="fas fa-upload ms-0 me-4"> 上傳檔案</i>
+                            <i class="fas fa-arrow-up-from-bracket ms-0 me-4"> 上傳檔案</i>
                         </button>
                     </div>
                 </form>
