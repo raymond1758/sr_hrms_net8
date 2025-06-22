@@ -13,6 +13,7 @@ public class CalendarModel : BasePageModel
     public bool OverwriteExisting { get; set; } = false;
     [BindProperty]
     public int SelectedYear { get; set; }
+    public DataTable CalendarData { get; set; } = new DataTable();
     public string? SuccessMessage { get; set; }
     public string? ErrorMessage { get; set; }
     public List<string> AvailableYears { get; set; } = new List<string>();
@@ -36,7 +37,9 @@ public class CalendarModel : BasePageModel
                                 .ToList();
                 SelectedYear = int.Parse(AvailableYears.FirstOrDefault() ?? DateTime.Now.Year.ToString());
             }
+            #if DEBUG
             Console.WriteLine($"Available Years: {string.Join(", ", AvailableYears)}");
+            #endif
         }
     }
     public IActionResult OnPostSubmitCSV()
@@ -56,6 +59,7 @@ public class CalendarModel : BasePageModel
                 {
                     SuccessMessage = $"匯入成功，資料筆數：{_records_effected}";
                     RefreshAvailableYears();
+                    CalendarData = _calendarSvc.QueryCalendarByYear(SelectedYear);
                 }
                 else
                 {
@@ -66,4 +70,11 @@ public class CalendarModel : BasePageModel
         return Page();
     }
 
+    public IActionResult OnPostYearChanged()
+    {
+        // The SelectedYear will be automatically bound from the form
+        // You can add any additional logic here if needed
+        CalendarData = _calendarSvc.QueryCalendarByYear(SelectedYear);        
+        return Page();
+    }
 }

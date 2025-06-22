@@ -66,5 +66,17 @@ namespace sr_hrms_net8.Services
                         ORDER BY Year desc";
             return _dbAdapter.ExecuteQuery(sql);
         }
+
+        public DataTable QueryCalendarByYear(int year)
+        {
+            var sql = @"SELECT * 
+                        FROM core.calendar 
+                        WHERE extract(year from calendar_date) = @Year";
+            var parameters = new[]
+            {
+                DbAdapter.CreateParameter("@Year", year)
+            };
+            return _dbAdapter.ExecuteQuery(sql, parameters);
+        }
     }
 }
