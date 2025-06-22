@@ -8,6 +8,9 @@
 <div class="row">
     <div class="d-flex ms-3 align-items-end">
         <h4 class="mb-0 font-weight-bolder">行事曆</h4>
+        <button type="button" class="btn btn-primary ms-auto me-3 mb-0" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <i class="fas fa-upload me-2"></i>上傳 CSV
+        </button>
     </div>
 </div>
 
@@ -40,7 +43,7 @@
 }
 
 <!-- Add Dropdown control to select year -->
-<div class="row mt-3 justify-content-center">
+<div class="row mt-0 justify-content-center">
     <div class="col-12">
         <form method="post" asp-page-handler="YearChanged">
             <div class="form-group d-flex align-items-center justify-content-center">
@@ -57,7 +60,7 @@
 </div>
 
 <!-- Add Monthly Calendar Table (each row contains 3 months)based on selected year -->
-<div class="row mt-4">
+<div class="row mt-1">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
@@ -158,40 +161,40 @@
                 </div>
             </div>
         </div>
+    </div>
 </div>
 
-<!-- CSV File Upload Section -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex">
-                <h6 class="mb-0">上傳行事曆 CSV 檔案</h6>
-                <span class="mb-0 ms-2 small text-secondary">(下載自<a href="https://data.gov.tw/dataset/14718" class="link-primary" target="_blank">政府行政機關辦公日曆表</a>. 請確認檔案格式正確再上傳)</span>
-            </div>        
-            <div class="card-body">
-                <form method="post" enctype="multipart/form-data" asp-page-handler="SubmitCSV">
-                    <div class="d d-flex mb-3 align-items-center">                        
-                        <label for="csvFile" class="form-label text-nowrap mb-0">選擇 CSV 檔案</label>    
-                        <input type="file" class="form-control border mb-0 ms-3" accept=".csv" asp-for="UploadFile" required>
-                        <button type="reset" class="btn btn-secondary mb-0 ms-3 d-inline-flex align-items-center text-nowrap">
-                            <i class="fas fa-times ms-0 me-4"> 清除</i>
-                        </button>
-                        <button type="submit" class="btn btn-primary mb-0 ms-3 d-inline-flex align-items-center text-nowrap">
-                            <i class="fas fa-arrow-up-from-bracket ms-0 me-4"> 上傳檔案</i>
-                        </button>
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">上傳行事曆 CSV 檔案</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <span class="small text-secondary">資料請從<a href="https://data.gov.tw/dataset/14718" class="link-primary text-bold ms-1 me-1" target="_blank">政府行政機關辦公日曆表</a>下載</span>
+                </div>
+                <form method="post" enctype="multipart/form-data" asp-page-handler="SubmitCSV" id="uploadForm">
+                    <div class="mb-3">
+                        <label for="csvFile" class="form-label">選擇 CSV 檔案</label>
+                        <input type="file" class="form-control border border-2 border-primary" accept=".csv" asp-for="UploadFile" required>
                     </div>
-                    
-                    <!-- Overwrite Checkbox Row - Aligned with upload controls -->
-                    <div class="d-flex align-items-center">
-                       <div class="form-check mb-0">
-                            <input class="form-check-input" type="checkbox" asp-for="OverwriteExisting" id="overwriteCheckbox">
-                            <label class="form-check-label" for="overwriteCheckbox">
-                                <i class="fas fa-sync-alt me-2 text-warning"></i>
-                                覆寫已存在的資料
-                            </label>
-                        </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" asp-for="OverwriteExisting" id="overwriteCheckbox">
+                        <label class="form-check-label" for="overwriteCheckbox">
+                            <i class="fas fa-sync-alt me-2 text-warning"></i>
+                            覆寫已存在的資料
+                        </label>
                     </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="uploadForm" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>上傳檔案
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
             </div>
         </div>
     </div>
