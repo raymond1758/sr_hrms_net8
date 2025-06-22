@@ -1,15 +1,15 @@
 using Npgsql;
 using System.Data;
 
-namespace sr_hrms_net8
+namespace sr_hrms_net8.Models
 {
-    public class DataModule : IDisposable
+    public class DbAdapter : IDisposable
     {
         private readonly NpgsqlConnection _connection;
         private NpgsqlTransaction? _transaction;
         private bool _disposed = false;
 
-        public DataModule(string connectionString)
+        public DbAdapter(string connectionString)
         {
             _connection = new NpgsqlConnection(connectionString);
         }
@@ -21,7 +21,14 @@ namespace sr_hrms_net8
         {
             if (_connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                try
+                {
+                    _connection.Open();
+                }
+                catch (Npgsql.NpgsqlException ex)
+                {
+                    throw new Exception("資料庫連線失敗, 請確認資料庫伺服器是否啟動並檢查連線字串是否正確。", ex);
+                }
             }
         }
 
@@ -259,7 +266,7 @@ namespace sr_hrms_net8
             }
         }
 
-        ~DataModule()
+        ~DbAdapter()
         {
             Dispose(false);
         }
