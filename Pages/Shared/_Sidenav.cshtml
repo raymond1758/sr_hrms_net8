@@ -19,15 +19,15 @@
                 <i class="material-symbols-rounded opacity-5">database</i>
                 <span class="nav-link-text ms-1">基本資料</span>
             </a>
-            <div class="collapse" id="basicDataSubmenu">
+            <div class="collapse ms-2" id="basicDataSubmenu">
                 <ul class="nav nav-sm flex-column">
-                    <li class="nav-item ms-3">
+                    <li class="nav-item">
                         <a class="nav-link text-dark" href="/departments">
                             <i class="material-symbols-rounded opacity-5">corporate_fare</i>
                             <span class="nav-link-text ms-1">部門資料</span>
                         </a>
                     </li>
-                    <li class="nav-item ms-3">
+                    <li class="nav-item">
                         <a class="nav-link text-dark" href="/employees">
                             <i class="material-symbols-rounded opacity-5">person</i>
                             <span class="nav-link-text ms-1">員工資料</span>
@@ -49,10 +49,80 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" href="/event_batch">
+            <a class="nav-link text-dark collapsed" data-bs-toggle="collapse" href="#monthlyTasksSubmenu" role="button" aria-expanded="false" aria-controls="monthlyTasksSubmenu">
                 <i class="material-symbols-rounded opacity-5">task</i>
                 <span class="nav-link-text ms-1">每月作業</span>
             </a>
+            <div class="collapse ms-2" id="monthlyTasksSubmenu">
+                <ul class="nav nav-sm flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/attendance-records">
+                            <i class="material-symbols-rounded opacity-5">access_time</i>
+                            <span class="nav-link-text ms-1">打卡紀錄</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/overtime-records">
+                            <i class="material-symbols-rounded opacity-5">schedule</i>
+                            <span class="nav-link-text ms-1">加班紀錄</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/leave-records">
+                            <i class="material-symbols-rounded opacity-5">event_busy</i>
+                            <span class="nav-link-text ms-1">請假紀錄</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/business-trip-records">
+                            <i class="material-symbols-rounded opacity-5">flight</i>
+                            <span class="nav-link-text ms-1">出差紀錄</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/xizhi-meal-allowance">
+                            <i class="material-symbols-rounded opacity-5">restaurant</i>
+                            <span class="nav-link-text ms-1">汐止餐費</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/kl-other-dept-meal">
+                            <i class="material-symbols-rounded opacity-5">dining</i>
+                            <span class="nav-link-text ms-1">KL其他部門餐費</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/kl-onsite-meal">
+                            <i class="material-symbols-rounded opacity-5">lunch_dining</i>
+                            <span class="nav-link-text ms-1">KL現場人員餐費</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/container-stacking-bonus">
+                            <i class="material-symbols-rounded opacity-5">inventory_2</i>
+                            <span class="nav-link-text ms-1">疊櫃獎金</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/perfect-attendance-bonus">
+                            <i class="material-symbols-rounded opacity-5">star</i>
+                            <span class="nav-link-text ms-1">全勤獎金</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/facility-quality-bonus">
+                            <i class="material-symbols-rounded opacity-5">engineering</i>
+                            <span class="nav-link-text ms-1">廠務品質績效獎金</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="/qa-quality-bonus">
+                            <i class="material-symbols-rounded opacity-5">verified</i>
+                            <span class="nav-link-text ms-1">品保品質績效獎金</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </li>
         <li class="nav-item">
             <a class="nav-link text-dark" href="/finance">
