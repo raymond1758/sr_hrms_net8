@@ -8,18 +8,6 @@ namespace sr_hrms_net8.Models
         {
         }
 
-        /// <summary>
-        /// Gets all employee records
-        /// </summary>
-        /// <returns>DataTable containing all employee data</returns>
-        public DataTable QueryAll()
-        {
-            var sql = @"SELECT * 
-                        FROM core.employee 
-                        ORDER BY emp_id";
-
-            return _dbAdapter.ExecuteQuery(sql);
-        }
 
         /// <summary>
         /// Checks if an employee record exists for a specific employee ID

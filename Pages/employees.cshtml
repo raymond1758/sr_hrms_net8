@@ -1,0 +1,105 @@
+@page
+@using System.Data
+@model EmployeesModel
+@{
+    ViewData["Title"] = "員工資料";
+}
+
+<div class="row">
+    <div class="d-flex ms-3 align-items-end">
+        <h4 class="mb-0 font-weight-bolder">員工資料</h4>
+        <button type="button" class="btn btn-primary ms-auto me-3 mb-0" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <i class="fas fa-upload me-2"></i>上傳 CSV
+        </button>
+    </div>
+</div>
+
+<!-- Success/Result Message -->
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="row mt-3 justify-content-center">
+        <div class="col-12">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Error/Result Message -->
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="row mt-3 justify-content-center">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Render table based on Model.EmployeeData -->
+@if (Model.EmployeeData != null && Model.EmployeeData.Rows.Count > 0)
+{
+    <div class="row mt-4">
+        <div class="">
+            <div class="card">
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    @foreach (DataColumn column in Model.EmployeeData.Columns)
+                                    {
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            @if (Model.ColumnNameMap != null && Model.ColumnNameMap.ContainsKey(column.ColumnName))
+                                            {
+                                                @Model.ColumnNameMap[column.ColumnName]
+                                            }
+                                            else
+                                            {
+                                                @column.ColumnName
+                                            }
+                                        </th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow row in Model.EmployeeData.Rows)
+                                {
+                                    <tr>
+                                        @foreach (var item in row.ItemArray)
+                                        {
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">
+                                                            @if (item is DateTime dateValue)
+                                                            {
+                                                                @dateValue.ToString("yyyy.MM.dd")
+                                                            }
+                                                            else
+                                                            {
+                                                                @(item?.ToString() ?? "")
+                                                            }
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
