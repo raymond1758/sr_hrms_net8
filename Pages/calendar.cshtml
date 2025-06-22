@@ -1,4 +1,5 @@
 @page
+@using System.Data
 @model CalendarModel
 @{
     ViewData["Title"] = "行事曆";
@@ -104,11 +105,37 @@
                                                                 else
                                                                 {
                                                                     var currentDate = new DateTime(Model.SelectedYear, monthNumber, currentDay);
+                                                                    
+                                                                    // Get calendar information from PageModel.CalendarData
+                                                                    var calendarInfo = Model.CalendarData.AsEnumerable()
+                                                                        .FirstOrDefault(row => row.Field<DateTime>("calendar_date").Date == currentDate.Date);
+                                                                    
+                                                                    var state = calendarInfo?.Field<long?>("state") ?? 0L;
+                                                                    var remark = calendarInfo?.Field<string>("remark") ?? string.Empty;
+                                                                    
                                                                     var isWeekend = day == 0 || day == 6;
-                                                                    var cellClass = isWeekend ? (day == 0 ? "text-danger" : "text-primary") : "";
+                                                                    var isHoliday = state == 2;
+                                                                    
+                                                                    // Determine cell class - holidays take precedence over weekend styling
+                                                                    var cellClass = isHoliday ? "text-danger fw-bold" : 
+                                                                                   isWeekend ? (day == 0 ? "text-danger" : "text-primary") : "";
                                                                     
                                                                     <td class="@cellClass p-0" style="height: 18px; font-size: 0.65rem; width: 20px;">
                                                                         @currentDay
+                                                                        @if (!string.IsNullOrEmpty(remark))
+                                                                        {
+                                                                            <div class="remark-indicator" 
+                                                                                 data-bs-toggle="tooltip" 
+                                                                                 data-bs-placement="top" 
+                                                                                 title="@remark"
+                                                                                 style="font-size: 0.45rem; line-height: 0.5; color: tomato; cursor: help;">
+                                                                                <i class="fas fa-info-circle"></i>
+                                                                            </div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div style="font-size: 0.45rem; line-height: 0.5;">&nbsp;</div>
+                                                                        }
                                                                     </td>
                                                                     currentDay++;
                                                                 }
@@ -131,7 +158,6 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <!-- CSV File Upload Section -->
@@ -170,3 +196,13 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+}

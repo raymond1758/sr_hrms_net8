@@ -77,4 +77,12 @@ public class CalendarModel : BasePageModel
         CalendarData = _calendarSvc.QueryCalendarByYear(SelectedYear);        
         return Page();
     }
+
+    public void OnGet()
+    {
+        if (AvailableYears.Any())
+        {
+            CalendarData = _calendarSvc.QueryCalendarByYear(SelectedYear);
+        }
+    }
 }
