@@ -38,5 +38,17 @@ namespace sr_hrms_net8.Models
             var count = _dbAdapter.ExecuteScalar<int>(sql, parameters);
             return count > 0;
         }
+
+        public string GetDeptId(string dept_name_zh)
+        {
+            var sql = @"SELECT dept_id 
+                        FROM core.department 
+                        WHERE dept_name_zh = @dept_name_zh";
+            var parameters = new[]
+            {
+                DbAdapter.CreateParameter("@dept_name_zh", dept_name_zh)
+            };
+            return _dbAdapter.ExecuteScalar(sql, parameters)?.ToString() ?? "";
+        }
     }
 }

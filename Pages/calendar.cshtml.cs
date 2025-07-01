@@ -37,9 +37,6 @@ public class CalendarModel : BasePageModel
                                 .ToList();
                 SelectedYear = int.Parse(AvailableYears.FirstOrDefault() ?? DateTime.Now.Year.ToString());
             }
-            #if DEBUG
-            Console.WriteLine($"Available Years: {string.Join(", ", AvailableYears)}");
-            #endif
         }
     }
     public IActionResult OnPostSubmitCSV()
