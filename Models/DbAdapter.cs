@@ -133,7 +133,7 @@ namespace sr_hrms_net8.Models
         public int ExecuteCommand(string sql, params NpgsqlParameter[] parameters)
         {
             OpenConnection();
-            
+
             using var command = new NpgsqlCommand(sql, _connection, _transaction);
             
             if (parameters != null && parameters.Length > 0)
@@ -141,7 +141,22 @@ namespace sr_hrms_net8.Models
                 command.Parameters.AddRange(parameters);
             }
 
-            return command.ExecuteNonQuery();
+            try
+            {
+                return command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Executing SQL: " + sql);
+                if (parameters != null && parameters.Length > 0)
+                {
+                    foreach (var param in parameters)
+                    {
+                        Console.WriteLine($"Parameter: {param.ParameterName} = {param.Value}");
+                    }
+                }
+                throw;
+            }    
         }
 
         /// <summary>

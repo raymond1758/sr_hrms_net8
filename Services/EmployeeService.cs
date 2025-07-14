@@ -50,7 +50,7 @@ namespace sr_hrms_net8.Services
                 { "員工編號", "emp_id" },
                 { "姓名", "emp_name_zh" },
                 { "英文姓名", "emp_name_en" },
-                { "身分證字號(外籍員工顯示護照/居留證號)", "id_no" },
+                { "身分證_護照_居留證", "id_no" },
                 { "生日", "birthday" },
                 { "性別", "gender" },
                 { "國籍", "nationality" },
@@ -66,16 +66,6 @@ namespace sr_hrms_net8.Services
                 { "責任區分","emp_type"}
             };
             var dt = sr_hrms_net8.Utilities.CsvHelper.ToDataTable(csvStream, renameColumns);
-#if DEBUG
-            // Print all columns of DataTable to Console
-            Console.WriteLine("DataTable Columns:");
-            foreach (DataColumn column in dt.Columns)
-            {
-                Console.WriteLine($"Column: {column.ColumnName}, Type: {column.DataType}");
-            }
-            Console.WriteLine($"Total Columns: {dt.Columns.Count}");
-            Console.WriteLine($"Total Rows: {dt.Rows.Count}");
-#endif
             
             var employee = new sr_hrms_net8.Models.Employee(_dbAdapter);
             var department = new sr_hrms_net8.Models.Department(_dbAdapter);
@@ -89,23 +79,39 @@ namespace sr_hrms_net8.Services
                 var emp_name_zh = row["emp_name_zh"]?.ToString() ?? "";
                 var emp_name_en = row["emp_name_en"]?.ToString() ?? "";
                 var id_no = row["id_no"]?.ToString() ?? "";
-                var birthday = row["birthday"]?.ToString() ?? "";
+                var birthdayString = row["birthday"]?.ToString() ?? "";
                 var gender = row["gender"]?.ToString() ?? "";
                 var nationality = row["nationality"]?.ToString() ?? "";
                 var job_category = row["job_category"]?.ToString() ?? "";
                 var job_title = row["job_title"]?.ToString() ?? "";
-                var emp_type = row["emp_type"]?.ToString() ?? "";
+                var emp_type = "";  // row["emp_type"]?.ToString() ?? "";
                 var employment_status = row["employment_status"]?.ToString() ?? "";
-                var onboard_date = row["onboard_date"]?.ToString() ?? "";
+                var onboard_dateString = row["onboard_date"]?.ToString() ?? "";
                 var suspension_or_resignation_date = parseDatetime(row["suspension_or_resignation_date"]?.ToString() ?? "");
                 var reinstatement_date = parseDatetime(row["reinstatement_date"]?.ToString() ?? "");
                 var disability = row["disability"]?.ToString() ?? "";
                 var dept_name_zh = row["dept_name_zh"]?.ToString() ?? "";
                 var dept_id = department.GetDeptId(dept_name_zh);
-                var domestic_or_foreign = (nationality == "台灣，中華民國" ? 'D' : 'F');
+                var domestic_or_foreign = (nationality == "台灣，中華民國" ? "D" : "F");
                 var identity_group = row["identity_group"]?.ToString() ?? "";
 
-                Console.WriteLine($"{dept_name_zh} = {dept_id}");
+                if (dept_id == "")
+                {
+                    Console.WriteLine($"{emp_Id} {emp_name_zh} {dept_name_zh} = {dept_id}");  
+                    throw new Exception($"{emp_Id} {emp_name_zh} {dept_name_zh} 查無部門代碼, 請更新組織圖.");
+                }
+
+                DateTime? birthday = null;
+                if (DateTime.TryParse(birthdayString, out var parsedDate1))
+                {
+                    birthday = parsedDate1;
+                }
+
+                DateTime? onboard_date = null;
+                if (DateTime.TryParse(onboard_dateString, out var parsedDate2))
+                {
+                    onboard_date = parsedDate2;
+                }
 
                 var recordExists = employee.IsExisted(emp_Id);
                 if (recordExists)
@@ -117,7 +123,10 @@ namespace sr_hrms_net8.Services
                 }
                 else
                 {
-                    // employee.Insert(emp_Id, emp_name_zh, id_no, birthday, gender, nationality, job_category, employment_status, onboard_date, suspension_or_resignation_date, reinstatement_date, disability);
+                    employee.Insert(dept_id, emp_Id, emp_name_zh, "", birthday, gender, nationality, domestic_or_foreign,
+                            identity_group, disability, onboard_date, job_category, job_title, emp_type, employment_status,
+                            "264", suspension_or_resignation_date, reinstatement_date);
+
                     _count++;
                 }
 
