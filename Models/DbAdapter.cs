@@ -145,7 +145,7 @@ namespace sr_hrms_net8.Models
             {
                 return command.ExecuteNonQuery();
             }
-            catch (Exception ex)
+            catch
             {
                 Console.WriteLine("Executing SQL: " + sql);
                 if (parameters != null && parameters.Length > 0)

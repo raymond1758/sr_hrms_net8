@@ -1,0 +1,207 @@
+@page
+@using System.Data
+@model PunchRecordsModel
+@{    
+    ViewData["Title"] = "打卡記錄";
+}
+
+<div class="row">
+    <div class="d-flex ms-3 align-items-end">
+        <h4 class="mb-0 font-weight-bolder">打卡記錄</h4>
+        <button type="button" class="btn btn-primary ms-auto me-3 mb-0" data-bs-toggle="modal" data-bs-target="#uploadModal">
+            <i class="fas fa-upload me-2"></i>上傳 CSV
+        </button>
+    </div>
+</div>
+
+<!-- Filter Controls (if needed in the future) -->
+@if (Model.PunchRecordData != null && Model.PunchRecordData.Rows.Count > 0)
+{
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <small class="text-muted">
+                            共 @Model.PunchRecordData.Rows.Count 筆資料
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Render table based on Model.PunchRecordData -->
+@if (Model.PunchRecordData != null && Model.PunchRecordData.Rows.Count > 0)
+{
+    <div class="row mt-4">
+        <div class="">
+            <div class="card">
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">員工編號</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">中文姓名</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">部門</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">工作日</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">打卡類別</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">表定時間</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">打卡時間</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">比對結果</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">異常原因</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">資料來源</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">備註</th>
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">超時出勤</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow item in Model.PunchRecordData.Rows)
+                                {
+                                    <tr class="table-row-hover">
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["emp_id"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["emp_name_zh"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["dept_name_zh"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">
+                                                        @if (item["work_date"] is DateTime dateValue)
+                                                        {
+                                                            @dateValue.ToString("yyyy-MM-dd")
+                                                        }
+                                                        else
+                                                        {
+                                                            @(item["work_date"]?.ToString() ?? "")
+                                                        }
+                                                    </h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["clock_type"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["scheduled_time"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["punch_time"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["check_result"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["anomaly_resolution"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["data_source"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["remark"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">@item["excessive_attendance"]</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+.table-row-hover {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.table-row-hover:hover {
+    background: linear-gradient(90deg, rgba(63, 94, 251, 0.1) 0%, rgba(252, 70, 107, 0.1) 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    z-index: 10;
+}
+
+.table-row-hover:hover td {
+    border-color: rgba(63, 94, 251, 0.2);
+}
+
+/* Optional: Row selection style */
+.table-row-hover.selected {
+    background: linear-gradient(90deg, rgba(63, 94, 251, 0.15) 0%, rgba(252, 70, 107, 0.15) 100%);
+    border-left: 4px solid #3f5efb;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tableRows = document.querySelectorAll('.table-row-hover');
+    
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.cursor = 'pointer';
+        });
+        
+        row.addEventListener('click', function() {
+            tableRows.forEach(r => r.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+});
+</script>
