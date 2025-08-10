@@ -20,6 +20,8 @@ public class PunchRecordsModel : BasePageModel
     public bool HasNext => CurrentPage < TotalPages;
     
     public string? Filter { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     
     private readonly PunchRecordService _punchRecordSvc;
     public PunchRecordsModel(DbAdapter dbAdapter) : base(dbAdapter)
@@ -50,7 +52,7 @@ public class PunchRecordsModel : BasePageModel
 
     private void LoadPunchRecordData()
     {
-        PunchRecordData = _punchRecordSvc.QueryPunchRecords(Filter ?? "", CurrentPage, PageSize, out var totalRecords);
+        PunchRecordData = _punchRecordSvc.QueryPunchRecords(Filter ?? "", CurrentPage, PageSize, out var totalRecords, StartDate, EndDate);
         TotalRecords = totalRecords;
     }
 
@@ -66,14 +68,19 @@ public class PunchRecordsModel : BasePageModel
         Console.WriteLine($"PunchRecords - Loaded {PunchRecordData.Rows.Count} records, Total: {TotalRecords}");
     }
 
-    public void OnPost(int page = 1, int pageSize = 25, string? filter = null)
+    public void OnPost(int page = 1, int pageSize = 25, string? filter = null, string? startDate = null, string? endDate = null)
     {
         CurrentPage = page < 1 ? 1 : page;
         PageSize = pageSize < 1 ? 25 : pageSize;
-        Filter = filter;
+        Filter = string.IsNullOrWhiteSpace(filter) ? null : filter;
+        
+        // Parse date strings to DateTime?, handling empty strings as null
+        StartDate = string.IsNullOrWhiteSpace(startDate) ? null : DateTime.TryParse(startDate, out var start) ? start : null;
+        EndDate = string.IsNullOrWhiteSpace(endDate) ? null : DateTime.TryParse(endDate, out var end) ? end : null;
         
         Console.WriteLine($"PunchRecords OnPost - Page: {CurrentPage}, PageSize: {PageSize}");
-        Console.WriteLine($"Filter: '{Filter}'");
+        Console.WriteLine($"Filter: '{Filter}', StartDate: {StartDate}, EndDate: {EndDate}");
+        Console.WriteLine($"Raw date inputs - startDate: '{startDate}', endDate: '{endDate}'");
         
         LoadPunchRecordData();
         

@@ -14,22 +14,68 @@
     </div>
 </div>
 
-<!-- Filter Controls (if needed in the future) -->
-@if (Model.PunchRecordData != null && Model.PunchRecordData.Rows.Count > 0)
-{
-    <div class="row mt-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body py-2">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <small class="text-muted me-3">
+<!-- Filter and Pagination Controls -->
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center justify-content-between flex-wrap">
+                    <div class="d-flex align-items-center flex-wrap">
+                        <form method="post" id="filterForm" style="display: inline-block;" class="me-3 mb-2">
+                            <input type="hidden" name="page" value="1" />
+                            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                            <div class="d-flex align-items-center">
+                                <div class="input-group input-group-sm me-2 border" style="width: 200px;">
+                                    <input type="text" name="filter" value="@(Model.Filter ?? "")" 
+                                           class="form-control form-control-sm" 
+                                           placeholder="篩選員工編號/姓名/部門"
+                                           title="可同時搜尋員工編號、中文姓名、部門，按 Enter 後自動搜尋"
+                                           onchange="document.getElementById('filterForm').submit()"
+                                           onkeypress="if(event.key==='Enter'){document.getElementById('filterForm').submit()}" />
+                                </div>
+                                <div>
+                                    <small class="text-muted me-3 mb-2">工作日:</small>
+                                </div>
+                                <div class="me-2 position-relative">
+                                    <input type="date" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" 
+                                           class="form-control form-control-sm border pe-4" 
+                                           placeholder="開始日期"
+                                           title="開始日期"
+                                           onchange="document.getElementById('filterForm').submit()" />
+                                    <button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-1" 
+                                            style="border: none; background: none; padding: 0; width: 20px; height: 20px;" 
+                                            onclick="clearStartDate()" title="清除開始日期">
+                                        <i class="fas fa-eraser text-muted" style="font-size: 12px;"></i>
+                                    </button>
+                                </div>
+                                <div class="me-2 position-relative">
+                                    <input type="date" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" 
+                                           class="form-control form-control-sm border pe-4" 
+                                           placeholder="結束日期"
+                                           title="結束日期"
+                                           onchange="document.getElementById('filterForm').submit()" />
+                                    <button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-1" 
+                                            style="border: none; background: none; padding: 0; width: 20px; height: 20px;" 
+                                            onclick="clearEndDate()" title="清除結束日期">
+                                        <i class="fas fa-eraser text-muted" style="font-size: 12px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                        
+                    <div class="d-flex align-items-center flex-wrap">
+                        @if (Model.PunchRecordData != null && Model.TotalRecords > 0)
+                        {
+                            <small class="text-muted me-3 mb-2">
                                 顯示 @((Model.CurrentPage - 1) * Model.PageSize + 1) - @(Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalRecords)) 筆，共 @Model.TotalRecords 筆資料
                             </small>
-                            <form method="post" id="pageSizeForm" style="display: inline-block;">
+                            <form method="post" id="pageSizeForm" style="display: inline-block;" class="mb-2">
                                 <input type="hidden" name="page" value="1" />
                                 <input type="hidden" name="filter" value="@(Model.Filter ?? "")" />
-                                <select class="form-select form-select-sm" name="pageSize" style="width: auto;" onchange="document.getElementById('pageSizeForm').submit()">
+                                <input type="hidden" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                <input type="hidden" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                <select class="form-select form-select-sm me-3" name="pageSize" style="width: auto;" onchange="document.getElementById('pageSizeForm').submit()">
                                     @{
                                         var pageSizes = new[] { 10, 25, 50, 100 };
                                         foreach (var size in pageSizes)
@@ -39,30 +85,18 @@
                                     }
                                 </select>
                             </form>
-                            
-                            <form method="post" id="filterForm" style="display: inline-block;" class="ms-3">
-                                <input type="hidden" name="page" value="1" />
-                                <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                                <div class="input-group input-group-sm border" style="width: 200px;">
-                                    <input type="text" name="filter" value="@(Model.Filter ?? "")" 
-                                           class="form-control form-control-sm" 
-                                           placeholder="篩選員工編號/姓名/部門"
-                                           title="可同時搜尋員工編號、中文姓名、部門，按 Enter 後自動搜尋"
-                                           onchange="document.getElementById('filterForm').submit()"
-                                           onkeypress="if(event.key==='Enter'){document.getElementById('filterForm').submit()}" />
-                                </div>
-                            </form>
-                        </div>
-                        
+                        }                        
                         @if (Model.TotalPages > 1)
                         {
-                            <nav aria-label="分頁導航">
+                            <nav aria-label="分頁導航" class="me-3">
                                 <ul class="pagination pagination-sm mb-0">
                                     <li class="page-item @(!Model.HasPrevious ? "disabled" : "")">
                                         <form method="post" style="display: inline-block;">
                                             <input type="hidden" name="page" value="1" />
                                             <input type="hidden" name="pageSize" value="@Model.PageSize" />
                                             <input type="hidden" name="filter" value="@(Model.Filter ?? "")" />
+                                            <input type="hidden" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                            <input type="hidden" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
                                             <button type="submit" class="page-link" tabindex="-1" @(!Model.HasPrevious ? "disabled" : "")>
                                                 <i class="fas fa-angle-double-left"></i>
                                             </button>
@@ -73,6 +107,8 @@
                                             <input type="hidden" name="page" value="@(Model.CurrentPage - 1)" />
                                             <input type="hidden" name="pageSize" value="@Model.PageSize" />
                                             <input type="hidden" name="filter" value="@(Model.Filter ?? "")" />
+                                            <input type="hidden" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                            <input type="hidden" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
                                             <button type="submit" class="page-link" tabindex="-1" @(!Model.HasPrevious ? "disabled" : "")>
                                                 <i class="fas fa-angle-left"></i>
                                             </button>
@@ -83,6 +119,8 @@
                                         <form method="post" id="pageSelectForm" style="display: inline-block;">
                                             <input type="hidden" name="pageSize" value="@Model.PageSize" />
                                             <input type="hidden" name="filter" value="@(Model.Filter ?? "")" />
+                                            <input type="hidden" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                            <input type="hidden" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
                                             <select class="form-select form-select-sm page-select" name="page" onchange="document.getElementById('pageSelectForm').submit()">
                                                 @for (int i = 1; i <= Model.TotalPages; i++)
                                                 {
@@ -97,6 +135,8 @@
                                             <input type="hidden" name="page" value="@(Model.CurrentPage + 1)" />
                                             <input type="hidden" name="pageSize" value="@Model.PageSize" />
                                             <input type="hidden" name="filter" value="@(Model.Filter ?? "")" />
+                                            <input type="hidden" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                            <input type="hidden" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
                                             <button type="submit" class="page-link" @(!Model.HasNext ? "disabled" : "")>
                                                 <i class="fas fa-angle-right"></i>
                                             </button>
@@ -107,6 +147,8 @@
                                             <input type="hidden" name="page" value="@Model.TotalPages" />
                                             <input type="hidden" name="pageSize" value="@Model.PageSize" />
                                             <input type="hidden" name="filter" value="@(Model.Filter ?? "")" />
+                                            <input type="hidden" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" />
+                                            <input type="hidden" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
                                             <button type="submit" class="page-link" @(!Model.HasNext ? "disabled" : "")>
                                                 <i class="fas fa-angle-double-right"></i>
                                             </button>
@@ -116,13 +158,13 @@
                             </nav>
                         }
                     </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-}
+</div>
 
-<!-- Render table based on Model.PunchRecordData -->
 @if (Model.PunchRecordData != null && Model.PunchRecordData.Rows.Count > 0)
 {
     <div class="row mt-4">
@@ -334,4 +376,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function clearStartDate() {
+    const startDateInput = document.querySelector('input[name="startDate"]');
+    startDateInput.value = '';
+    startDateInput.removeAttribute('value');
+    document.getElementById('filterForm').submit();
+}
+
+function clearEndDate() {
+    const endDateInput = document.querySelector('input[name="endDate"]');
+    endDateInput.value = '';
+    endDateInput.removeAttribute('value');
+    document.getElementById('filterForm').submit();
+}
+
 </script>

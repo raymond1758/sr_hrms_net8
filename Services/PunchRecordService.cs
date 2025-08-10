@@ -1,6 +1,7 @@
 
 using sr_hrms_net8.Models;
 using System.Data;
+using Npgsql;
 
 namespace sr_hrms_net8.Services
 {
@@ -10,7 +11,7 @@ namespace sr_hrms_net8.Services
         {
         }
 
-        public DataTable QueryPunchRecords(string filter, int pageNumber, int pageSize, out int totalRecords)
+        public DataTable QueryPunchRecords(string filter, int pageNumber, int pageSize, out int totalRecords, DateTime? startDate = null, DateTime? endDate = null)
         {
             Console.WriteLine($"QueryPunchRecords - filter: '{filter}', pageNumber: {pageNumber}, pageSize: {pageSize}");
             
@@ -41,11 +42,27 @@ namespace sr_hrms_net8.Services
             
             Console.WriteLine($"QueryPunchRecords - sql_filter: '{sql_filter}', offset: {offset}");
             
+            var whereConditions = new List<string>();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                whereConditions.Add("(e.emp_name_zh LIKE @filter OR p.emp_id LIKE @filter OR d.dept_name_zh LIKE @filter)");
+            }
+            if (startDate.HasValue)
+            {
+                whereConditions.Add("p.work_date >= @startDate");
+            }
+            if (endDate.HasValue)
+            {
+                whereConditions.Add("p.work_date <= @endDate");
+            }
+            
+            var whereClause = whereConditions.Count > 0 ? "WHERE " + string.Join(" AND ", whereConditions) : "";
+            
             var sql = $@"SELECT e.emp_name_zh, d.dept_name_zh, p.*
                         FROM attendance.punch_records p
                         LEFT JOIN core.employee e ON p.emp_id = e.emp_id
                         LEFT JOIN core.department d ON e.dept_id = d.dept_id
-                        WHERE (@filter = '' OR (e.emp_name_zh LIKE @filter OR p.emp_id LIKE @filter OR d.dept_name_zh LIKE @filter))
+                        {whereClause}
                         ORDER BY p.punch_id
                         LIMIT @pageSize OFFSET @offset";
 
@@ -53,20 +70,37 @@ namespace sr_hrms_net8.Services
                               FROM attendance.punch_records p
                               LEFT JOIN core.employee e ON p.emp_id = e.emp_id
                               LEFT JOIN core.department d ON e.dept_id = d.dept_id
-                              WHERE (@filter = '' OR (e.emp_name_zh LIKE @filter OR p.emp_id LIKE @filter OR d.dept_name_zh LIKE @filter))";
+                              {whereClause}";
 
-            var parameters = new[]
+            var parameterList = new List<NpgsqlParameter>
             {
-                DbAdapter.CreateParameter("@filter", sql_filter),
                 DbAdapter.CreateParameter("@pageSize", pageSize),
                 DbAdapter.CreateParameter("@offset", offset)
             };
+            
+            var countParameterList = new List<NpgsqlParameter>();
+            
+            if (!string.IsNullOrEmpty(filter))
+            {
+                parameterList.Add(DbAdapter.CreateParameter("@filter", sql_filter));
+                countParameterList.Add(DbAdapter.CreateParameter("@filter", sql_filter));
+            }
+            if (startDate.HasValue)
+            {
+                parameterList.Add(DbAdapter.CreateParameter("@startDate", startDate.Value));
+                countParameterList.Add(DbAdapter.CreateParameter("@startDate", startDate.Value));
+            }
+            if (endDate.HasValue)
+            {
+                parameterList.Add(DbAdapter.CreateParameter("@endDate", endDate.Value));
+                countParameterList.Add(DbAdapter.CreateParameter("@endDate", endDate.Value));
+            }
 
-            totalRecords = _dbAdapter.ExecuteScalar<int>(countSql, new[] { DbAdapter.CreateParameter("@filter", sql_filter) });
+            totalRecords = _dbAdapter.ExecuteScalar<int>(countSql, countParameterList.ToArray());
             
             Console.WriteLine($"QueryPunchRecords - totalRecords: {totalRecords}");
             
-            var result = _dbAdapter.ExecuteQuery(sql, parameters);
+            var result = _dbAdapter.ExecuteQuery(sql, parameterList.ToArray());
             
             Console.WriteLine($"QueryPunchRecords - returned {result.Rows.Count} rows");
             Console.WriteLine($"Executed SQL: {sql}");
