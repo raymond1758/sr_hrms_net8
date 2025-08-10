@@ -13,12 +13,16 @@ public class EmployeesModel : BasePageModel
     public IFormFile? UploadFile { get; set; }
     [BindProperty]
     public string? SearchText { get; set; }
+    [BindProperty(SupportsGet = true)]
+    public string? SelectedDepartment { get; set; }
     public DataTable EmployeeData { get; set; } = new DataTable();
+    public DataTable DepartmentData { get; set; } = new DataTable();
     public string? SuccessMessage { get; set; }
     public string? ErrorMessage { get; set; }
     
     public Dictionary<string, string> ColumnNameMap { get; set; } = new Dictionary<string, string>();
     private readonly EmployeeService _employeeSvc;
+    private readonly DepartmentService _departmentSvc;
 
     [BindProperty(SupportsGet = true)]
     public string? EmploymentStatus { get; set; }
@@ -26,7 +30,9 @@ public class EmployeesModel : BasePageModel
     public EmployeesModel(DbAdapter dbAdapter) : base(dbAdapter)
     {
         _employeeSvc = new EmployeeService(_dbAdapter);
+        _departmentSvc = new DepartmentService(_dbAdapter);
         LoadColumnNameMap();
+        LoadDepartmentData();
     }
 
     public void OnGet()
@@ -41,7 +47,12 @@ public class EmployeesModel : BasePageModel
 
     private void LoadEmployeeData()
     {
-        EmployeeData = _employeeSvc.QueryEmployees(EmploymentStatus ?? "%", SearchText ?? "");
+        EmployeeData = _employeeSvc.QueryEmployees(EmploymentStatus ?? "%", SearchText ?? "", SelectedDepartment ?? "");
+    }
+
+    private void LoadDepartmentData()
+    {
+        DepartmentData = _departmentSvc.GetAllDepartments();
     }
 
     private void LoadColumnNameMap()

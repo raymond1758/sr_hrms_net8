@@ -43,41 +43,51 @@
 }
 
 <!-- Filter Controls -->
-@if (Model.EmployeeData != null && Model.EmployeeData.Rows.Count > 0)
-{
-    <div class="row mt-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body py-2">
-                    <form method="post" class="d-flex align-items-center flex-wrap gap-3">
-                        <div class="d-flex align-items-center">
-                            <select asp-for="EmploymentStatus" class="form-select form-select-sm" style="width: auto;">
-                                <option value="%">全部資料</option>
-                                <option value="在職">在職員工</option>
-                                <option value="離職">離職員工</option>
-                            </select>
-                        </div>
-                        
-                        <div class="d-flex align-items-center">
-                            <input type="text" asp-for="SearchText" class="form-control form-control-sm border" 
-                                   placeholder="搜尋員工編號或姓名" style="width: 200px;">
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-sm mb-0" asp-page-handler="QueryEmployees">
-                            <i class="fas fa-search me-1"></i>搜尋
-                        </button>
-                        
-                        <div class="ms-auto">
-                            <small class="text-muted">
-                                共 @Model.EmployeeData.Rows.Count 筆資料
-                            </small>
-                        </div>
-                    </form>
-                </div>
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-2">
+                <form method="post" class="d-flex align-items-center flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <select asp-for="EmploymentStatus" class="form-select form-select-sm" style="width: auto;">
+                            <option value="%">全部資料</option>
+                            <option value="在職">在職員工</option>
+                            <option value="離職">離職員工</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <select asp-for="SelectedDepartment" class="form-select form-select-sm" style="width: auto;">
+                            <option value="">全部部門</option>
+                            @if (Model.DepartmentData != null)
+                            {
+                                @foreach (System.Data.DataRow dept in Model.DepartmentData.Rows)
+                                {
+                                    <option value="@dept["dept_id"]">@dept["path"]</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <input type="text" asp-for="SearchText" class="form-control form-control-sm border" 
+                               placeholder="搜尋員工編號或姓名" style="width: 200px;">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-sm mb-0" asp-page-handler="QueryEmployees">
+                        <i class="fas fa-search me-1"></i>搜尋
+                    </button>
+                    
+                    <div class="ms-auto">
+                        <small class="text-muted">
+                            共 @(Model.EmployeeData?.Rows.Count ?? 0) 筆資料
+                        </small>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-}
+</div>
 
 <!-- Render table based on Model.EmployeeData -->
 @if (Model.EmployeeData != null && Model.EmployeeData.Rows.Count > 0)

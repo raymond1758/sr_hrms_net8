@@ -20,7 +20,7 @@ namespace sr_hrms_net8.Services
             return _dbAdapter.ExecuteQuery(sql);
         }
 
-        public DataTable QueryEmployees(string employmentStatus, string filter)
+        public DataTable QueryEmployees(string employmentStatus, string filter, string department = "")
         {
             /* if filter is empty, return all records. else filter by emp_name_zh or emp_id */
             var sql_filter = string.IsNullOrEmpty(filter) ? "" : $"%{filter}%";
@@ -30,12 +30,14 @@ namespace sr_hrms_net8.Services
                         LEFT OUTER JOIN core.department d on e.dept_id = d.dept_id
                         WHERE e.employment_status like @employmentStatus
                         and (@filter = '' or (e.emp_name_zh like @filter or e.emp_id like @filter))
+                        and (@department = '' or e.dept_id = @department)
                         ORDER BY emp_id";
 
             var parameters = new[]
             {
                 DbAdapter.CreateParameter("@employmentStatus", employmentStatus),
-                DbAdapter.CreateParameter("@filter", sql_filter)
+                DbAdapter.CreateParameter("@filter", sql_filter),
+                DbAdapter.CreateParameter("@department", department)
             };
 
             return _dbAdapter.ExecuteQuery(sql, parameters);
