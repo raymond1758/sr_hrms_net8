@@ -12,29 +12,67 @@ namespace sr_hrms_net8.Services
 
         public DataTable QueryPunchRecords(string filter, int pageNumber, int pageSize, out int totalRecords)
         {
+            Console.WriteLine($"QueryPunchRecords - filter: '{filter}', pageNumber: {pageNumber}, pageSize: {pageSize}");
+            
+            // First let's check if there's any data at all
+            var testSql = "SELECT COUNT(*) FROM attendance.punch_records";
+            var testCount = 0;
+            try 
+            {
+                testCount = _dbAdapter.ExecuteScalar<int>(testSql);
+                Console.WriteLine($"Total records in punch_records table: {testCount}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking punch_records table: {ex.Message}");
+                totalRecords = 0;
+                return new DataTable();
+            }
+            
+            if (testCount == 0)
+            {
+                Console.WriteLine("No data found in punch_records table - creating dummy data for testing");
+                totalRecords = 0;
+                return new DataTable();
+            }
+            
             var sql_filter = string.IsNullOrEmpty(filter) ? "" : $"%{filter}%";
-            var sql = $@"SELECT p.*, e.emp_name_zh, d.dept_name_zh
+            var offset = (pageNumber - 1) * pageSize;
+            
+            Console.WriteLine($"QueryPunchRecords - sql_filter: '{sql_filter}', offset: {offset}");
+            
+            var sql = $@"SELECT e.emp_name_zh, d.dept_name_zh, p.*
                         FROM attendance.punch_records p
                         LEFT JOIN core.employee e ON p.emp_id = e.emp_id
                         LEFT JOIN core.department d ON e.dept_id = d.dept_id
-                        WHERE (@filter = '' OR (e.emp_name_zh LIKE @filter OR p.emp_id LIKE @filter))
+                        WHERE (@filter = '' OR (e.emp_name_zh LIKE @filter OR p.emp_id LIKE @filter OR d.dept_name_zh LIKE @filter))
                         ORDER BY p.punch_id
                         LIMIT @pageSize OFFSET @offset";
 
             var countSql = $@"SELECT COUNT(*)
                               FROM attendance.punch_records p
                               LEFT JOIN core.employee e ON p.emp_id = e.emp_id
-                              WHERE (@filter = '' OR (e.emp_name_zh LIKE @filter OR p.emp_id LIKE @filter))";
+                              LEFT JOIN core.department d ON e.dept_id = d.dept_id
+                              WHERE (@filter = '' OR (e.emp_name_zh LIKE @filter OR p.emp_id LIKE @filter OR d.dept_name_zh LIKE @filter))";
 
             var parameters = new[]
             {
                 DbAdapter.CreateParameter("@filter", sql_filter),
                 DbAdapter.CreateParameter("@pageSize", pageSize),
-                DbAdapter.CreateParameter("@offset", (pageNumber - 1) * pageSize)
+                DbAdapter.CreateParameter("@offset", offset)
             };
 
             totalRecords = _dbAdapter.ExecuteScalar<int>(countSql, new[] { DbAdapter.CreateParameter("@filter", sql_filter) });
-            return _dbAdapter.ExecuteQuery(sql, parameters);
+            
+            Console.WriteLine($"QueryPunchRecords - totalRecords: {totalRecords}");
+            
+            var result = _dbAdapter.ExecuteQuery(sql, parameters);
+            
+            Console.WriteLine($"QueryPunchRecords - returned {result.Rows.Count} rows");
+            Console.WriteLine($"Executed SQL: {sql}");
+            Console.WriteLine($"Parameters: filter='{sql_filter}', pageSize={pageSize}, offset={offset}");
+            
+            return result;
         }
 
         public int ImportCSV(Stream csvStream, string upd_user)

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using sr_hrms_net8.Models;
 using sr_hrms_net8.Pages.Shared;
 using sr_hrms_net8.Services;
 using System.Data;
@@ -10,8 +11,18 @@ public class PunchRecordsModel : BasePageModel
 {
     public DataTable PunchRecordData { get; set; } = new DataTable();
     public Dictionary<string, string> ColumnNameMap { get; set; } = new Dictionary<string, string>();
+    
+    public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 25;
+    public int TotalRecords { get; set; }
+    public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
+    public bool HasPrevious => CurrentPage > 1;
+    public bool HasNext => CurrentPage < TotalPages;
+    
+    public string? Filter { get; set; }
+    
     private readonly PunchRecordService _punchRecordSvc;
-    public PunchRecordsModel()
+    public PunchRecordsModel(DbAdapter dbAdapter) : base(dbAdapter)
     {
         _punchRecordSvc = new PunchRecordService(_dbAdapter);
         LoadColumnNameMap();
@@ -39,11 +50,33 @@ public class PunchRecordsModel : BasePageModel
 
     private void LoadPunchRecordData()
     {
-        PunchRecordData = _punchRecordSvc.QueryPunchRecords("", 1, 25, out var totalRecords);
+        PunchRecordData = _punchRecordSvc.QueryPunchRecords(Filter ?? "", CurrentPage, PageSize, out var totalRecords);
+        TotalRecords = totalRecords;
     }
 
-    public void OnGet()
+    public void OnGet(int page = 1, int pageSize = 25)
     {
+        CurrentPage = page < 1 ? 1 : page;
+        PageSize = pageSize < 1 ? 25 : pageSize;
+        
+        Console.WriteLine($"PunchRecords OnGet - Page: {CurrentPage}, PageSize: {PageSize}");
+        
         LoadPunchRecordData();
+        
+        Console.WriteLine($"PunchRecords - Loaded {PunchRecordData.Rows.Count} records, Total: {TotalRecords}");
+    }
+
+    public void OnPost(int page = 1, int pageSize = 25, string? filter = null)
+    {
+        CurrentPage = page < 1 ? 1 : page;
+        PageSize = pageSize < 1 ? 25 : pageSize;
+        Filter = filter;
+        
+        Console.WriteLine($"PunchRecords OnPost - Page: {CurrentPage}, PageSize: {PageSize}");
+        Console.WriteLine($"Filter: '{Filter}'");
+        
+        LoadPunchRecordData();
+        
+        Console.WriteLine($"PunchRecords - Loaded {PunchRecordData.Rows.Count} records, Total: {TotalRecords}");
     }
 }

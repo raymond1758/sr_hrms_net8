@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using sr_hrms_net8.Models;
 using sr_hrms_net8.Pages.Shared;
 using sr_hrms_net8.Services;
 using System.Data;
@@ -22,7 +23,7 @@ public class EmployeesModel : BasePageModel
     [BindProperty(SupportsGet = true)]
     public string? EmploymentStatus { get; set; }
 
-    public EmployeesModel()
+    public EmployeesModel(DbAdapter dbAdapter) : base(dbAdapter)
     {
         _employeeSvc = new EmployeeService(_dbAdapter);
         LoadColumnNameMap();

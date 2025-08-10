@@ -1,9 +1,17 @@
 using Npgsql;
+using sr_hrms_net8.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Register DbAdapter as scoped service
+builder.Services.AddScoped<DbAdapter>(provider =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    return new DbAdapter(connectionString!);
+});
     
 var app = builder.Build();
 

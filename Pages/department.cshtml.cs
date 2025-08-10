@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using sr_hrms_net8.Models;
 using sr_hrms_net8.Pages.Shared;
 using sr_hrms_net8.Services;
 using System.Data;
@@ -12,7 +13,7 @@ public class DepartmentModel : BasePageModel
     public string? SuccessMessage { get; set; }
     public string? ErrorMessage { get; set; }
     public Dictionary<string, string> ColumnNameMap { get; set; } = new Dictionary<string, string>();
-    public DepartmentModel()
+    public DepartmentModel(DbAdapter dbAdapter) : base(dbAdapter)
     {
         _departmentSvc = new DepartmentService(_dbAdapter);
     }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using sr_hrms_net8.Models;
 using sr_hrms_net8.Pages.Shared;
 using sr_hrms_net8.Services;
 using System.Data;
@@ -19,7 +20,7 @@ public class CalendarModel : BasePageModel
     public List<string> AvailableYears { get; set; } = new List<string>();
     private CalendarService _calendarSvc;
 
-    public CalendarModel()
+    public CalendarModel(DbAdapter dbAdapter) : base(dbAdapter)
     {
         _calendarSvc = new CalendarService(_dbAdapter);
         RefreshAvailableYears();
