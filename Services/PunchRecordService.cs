@@ -115,18 +115,22 @@ namespace sr_hrms_net8.Services
 
             var renameColumns = new Dictionary<string, string>
             {
+                { "#", "row_number" },
                 { "員工編號", "emp_id" },
-                { "中文姓名", "emp_name_zh" },
+                { "姓名", "emp_name_zh" },
                 { "部門", "dept_name_zh" },
-                { "工作日", "work_date" },
-                { "打卡類別 (上班/下班)", "clock_type" },
-                { "表定時間", "scheduled_time" },
-                { "打卡時間", "punch_time" },
+                { "工作日期", "work_date" },
+                { "應刷卡時間", "scheduled_time" },
+                { "實際打卡時間", "punch_time" },
+                { "卡別", "clock_type" },
+                { "打卡地址", "punch_address" },
                 { "比對結果", "check_result" },
-                { "異常原因", "anomaly_resolution" },
-                { "資料來源", "data_source" },
+                { "異常處理", "anomaly_resolution" },
+                { "來源", "data_source" },
                 { "備註", "remark" },
-                { "超時出勤", "excessive_attendance" }
+                { "超時出勤", "excessive_attendance" },
+                { "超時出勤原因", "excessive_attendance_reason" },
+                { "超時出勤說明", "excessive_attendance_description" }
             };
             var dt = sr_hrms_net8.Utilities.CsvHelper.ToDataTable(csvStream, renameColumns);
             

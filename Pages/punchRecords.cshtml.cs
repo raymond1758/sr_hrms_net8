@@ -9,6 +9,8 @@ namespace sr_hrms_net8.Pages;
 
 public class PunchRecordsModel : BasePageModel
 {
+    [BindProperty]
+    public IFormFile? UploadFile { get; set; }
     public DataTable PunchRecordData { get; set; } = new DataTable();
     public Dictionary<string, string> ColumnNameMap { get; set; } = new Dictionary<string, string>();
     
@@ -22,6 +24,8 @@ public class PunchRecordsModel : BasePageModel
     public string? Filter { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public string? SuccessMessage { get; set; }
+    public string? ErrorMessage { get; set; }
     
     private readonly PunchRecordService _punchRecordSvc;
     public PunchRecordsModel(DbAdapter dbAdapter) : base(dbAdapter)
@@ -61,11 +65,11 @@ public class PunchRecordsModel : BasePageModel
         CurrentPage = page < 1 ? 1 : page;
         PageSize = pageSize < 1 ? 25 : pageSize;
         
-        Console.WriteLine($"PunchRecords OnGet - Page: {CurrentPage}, PageSize: {PageSize}");
+        // Console.WriteLine($"PunchRecords OnGet - Page: {CurrentPage}, PageSize: {PageSize}");
         
         LoadPunchRecordData();
         
-        Console.WriteLine($"PunchRecords - Loaded {PunchRecordData.Rows.Count} records, Total: {TotalRecords}");
+        // Console.WriteLine($"PunchRecords - Loaded {PunchRecordData.Rows.Count} records, Total: {TotalRecords}");
     }
 
     public void OnPost(int page = 1, int pageSize = 25, string? filter = null, string? startDate = null, string? endDate = null)
@@ -78,12 +82,41 @@ public class PunchRecordsModel : BasePageModel
         StartDate = string.IsNullOrWhiteSpace(startDate) ? null : DateTime.TryParse(startDate, out var start) ? start : null;
         EndDate = string.IsNullOrWhiteSpace(endDate) ? null : DateTime.TryParse(endDate, out var end) ? end : null;
         
-        Console.WriteLine($"PunchRecords OnPost - Page: {CurrentPage}, PageSize: {PageSize}");
-        Console.WriteLine($"Filter: '{Filter}', StartDate: {StartDate}, EndDate: {EndDate}");
-        Console.WriteLine($"Raw date inputs - startDate: '{startDate}', endDate: '{endDate}'");
+        // Console.WriteLine($"PunchRecords OnPost - Page: {CurrentPage}, PageSize: {PageSize}");
+        // Console.WriteLine($"Filter: '{Filter}', StartDate: {StartDate}, EndDate: {EndDate}");
+        // Console.WriteLine($"Raw date inputs - startDate: '{startDate}', endDate: '{endDate}'");
         
         LoadPunchRecordData();
         
-        Console.WriteLine($"PunchRecords - Loaded {PunchRecordData.Rows.Count} records, Total: {TotalRecords}");
+        // Console.WriteLine($"PunchRecords - Loaded {PunchRecordData.Rows.Count} records, Total: {TotalRecords}");
+    }
+    
+    public IActionResult OnPostSubmitCSV()
+    {
+        if (UploadFile == null || UploadFile.Length == 0)
+        {
+            ErrorMessage = "請選擇 CSV 檔案";
+            LoadPunchRecordData();
+            return Page();
+        }
+
+        string fname = UploadFile.FileName ?? string.Empty;
+        try
+        {
+            using (var stream = UploadFile.OpenReadStream())
+            {
+                var user = User.Identity?.Name ?? "system";
+                var count = _punchRecordSvc.ImportCSV(stream, user);
+                SuccessMessage = $"匯入完成，共匯入 {count} 筆打卡記錄";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"CSV import error: {ex.Message}");
+            ErrorMessage = $"CSV 匯入失敗: {ex.Message}";
+        }
+        
+        LoadPunchRecordData();
+        return Page();
     }
 }

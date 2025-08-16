@@ -14,6 +14,34 @@
     </div>
 </div>
 
+<!-- Success/Result Message -->
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="row mt-3 justify-content-center">
+        <div class="col-12">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Error/Result Message -->
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="row mt-3 justify-content-center">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+}
+
 <!-- Filter and Pagination Controls -->
 <div class="row mt-3">
     <div class="col-12">
@@ -77,7 +105,7 @@
                                 <input type="hidden" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
                                 <select class="form-select form-select-sm me-3" name="pageSize" style="width: auto;" onchange="document.getElementById('pageSizeForm').submit()">
                                     @{
-                                        var pageSizes = new[] { 10, 25, 50, 100 };
+                                        var pageSizes = new[] { 10, 25, 50, 100};
                                         foreach (var size in pageSizes)
                                         {
                                             <option value="@size" selected="@(Model.PageSize == size)">@size 筆/頁</option>
@@ -171,9 +199,9 @@
         <div class="">
             <div class="card">
                 <div class="card-body px-0 pt-0 pb-2">
-                    <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
-                            <thead>
+                    <div class="table-responsive p-0" style="overflow-x: auto; max-height: 640px; overflow-y: auto;">
+                        <table class="table align-items-center mb-0" style="min-width: 640px;">
+                            <thead style="position: sticky; top: 0; background-color: #f8f9fa; z-index: 10;">
                                 <tr>
                                     <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">員工編號</th>
                                     <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">中文姓名</th>
@@ -392,3 +420,29 @@ function clearEndDate() {
 }
 
 </script>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">上傳打卡記錄</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">                
+                <form method="post" enctype="multipart/form-data" asp-page-handler="SubmitCSV" id="uploadForm">
+                    <div class="mb-3">
+                        <label for="csvFile" class="form-label">選擇 CSV 檔案</label>
+                        <input type="file" class="form-control border border-2 border-primary" accept=".csv" asp-for="UploadFile" required>
+                    </div>                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="uploadForm" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>上傳檔案
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>

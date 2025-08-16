@@ -1,0 +1,297 @@
+@page
+@using System.Data
+@model PayrollBatchesModel
+@{
+    ViewData["Title"] = "Monthly Payroll";
+}
+
+<div class="row">
+    <div class="d-flex ms-3 align-items-end">
+        <h4 class="mb-0 font-weight-bolder">Monthly Payroll</h4>
+        <button type="button" class="btn btn-primary ms-auto me-3 mb-0" data-bs-toggle="modal" data-bs-target="#createModal">
+            <i class="fas fa-plus me-2"></i>Create Payroll Batch
+        </button>
+    </div>
+</div>
+
+<!-- Success/Result Message -->
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="row mt-3 justify-content-center">
+        <div class="col-12">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Error/Result Message -->
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="row mt-3 justify-content-center">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Filter Controls -->
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-2">
+                <form method="post" class="d-flex align-items-center flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <select asp-for="SelectedYear" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                            <option value="0">All Years</option>
+                            @for (int year = DateTime.Now.Year; year >= DateTime.Now.Year - 5; year--)
+                            {
+                                <option value="@year">@year</option>
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="ms-auto">
+                        <small class="text-muted">
+                            Total @(Model.PayrollBatchData?.Rows.Count ?? 0) records
+                        </small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Render table based on Model.PayrollBatchData -->
+@if (Model.PayrollBatchData != null && Model.PayrollBatchData.Rows.Count > 0)
+{
+    <div class="row mt-4">
+        <div class="">
+            <div class="card">
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    @foreach (DataColumn column in Model.PayrollBatchData.Columns)
+                                    {
+                                        <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">
+                                            @if (Model.ColumnNameMap != null && Model.ColumnNameMap.ContainsKey(column.ColumnName))
+                                            {
+                                                @Model.ColumnNameMap[column.ColumnName]
+                                            }
+                                            else
+                                            {
+                                                @column.ColumnName
+                                            }
+                                        </th>
+                                    }
+                                    <th class="text-uppercase text-secondary text-sm font-weight-bolder opacity-7">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow row in Model.PayrollBatchData.Rows)
+                                {
+                                    <tr class="table-row-hover">
+                                        @foreach (var item in row.ItemArray)
+                                        {
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">
+                                                            @if (item is DateTime dateValue)
+                                                            {
+                                                                @dateValue.ToString("yyyy-MM-dd")
+                                                            }
+                                                            else
+                                                            {
+                                                                @(item?.ToString() ?? "")
+                                                            }
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        }
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <button type="button" class="btn btn-sm btn-primary me-2" 
+                                                        data-bs-toggle="modal" data-bs-target="#editModal"
+                                                        onclick="loadEditData('@row["batch_id"]', '@row["payroll_year"]', '@row["payroll_month"]', '@row["description"]', '@row["status"]')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <form method="post" class="d-inline" asp-page-handler="DeleteBatch" 
+                                                      onsubmit="return confirm('Are you sure you want to delete this payroll batch?');">
+                                                    <input type="hidden" name="batchId" value="@row["batch_id"]" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Create Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Create Payroll Batch</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-page-handler="CreateBatch" id="createForm">
+                    <div class="mb-3">
+                        <label class="form-label">Year</label>
+                        <select class="form-select border border-2 border-primary" asp-for="NewPayrollYear" required>
+                            <option value="">Select Year</option>
+                            @for (int year = DateTime.Now.Year; year >= DateTime.Now.Year - 2; year--)
+                            {
+                                <option value="@year">@year</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Month</label>
+                        <select class="form-select border border-2 border-primary" asp-for="NewPayrollMonth" required>
+                            <option value="">Select Month</option>
+                            @for (int month = 1; month <= 12; month++)
+                            {
+                                <option value="@month">@month</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control border border-2 border-primary" asp-for="NewDescription" maxlength="128" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select border border-2 border-primary" asp-for="NewStatus" required>
+                            <option value="Init">Initial</option>
+                            <option value="Submitted">Submitted</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Canceled">Canceled</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="createForm" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Batch
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit Payroll Batch</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-page-handler="UpdateBatch" id="editForm">
+                    <input type="hidden" asp-for="EditBatchId" id="editBatchId" />
+                    <div class="mb-3">
+                        <label class="form-label">Year</label>
+                        <input type="text" class="form-control" asp-for="EditPayrollYear" id="editYear" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Month</label>
+                        <input type="text" class="form-control" asp-for="EditPayrollMonth" id="editMonth" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control border border-2 border-primary" asp-for="EditDescription" id="editDescription" maxlength="128" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select border border-2 border-primary" asp-for="EditStatus" id="editStatus" required>
+                            <option value="Init">Initial</option>
+                            <option value="Submitted">Submitted</option>
+                            <option value="Closed">Closed</option>
+                            <option value="Canceled">Canceled</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="editForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Update Batch
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table-row-hover {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.table-row-hover:hover {
+    background: linear-gradient(90deg, rgba(63, 94, 251, 0.1) 0%, rgba(252, 70, 107, 0.1) 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    z-index: 10;
+}
+
+.table-row-hover:hover td {
+    border-color: rgba(63, 94, 251, 0.2);
+}
+
+/* Optional: Row selection style */
+.table-row-hover.selected {
+    background: linear-gradient(90deg, rgba(63, 94, 251, 0.15) 0%, rgba(252, 70, 107, 0.15) 100%);
+    border-left: 4px solid #3f5efb;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tableRows = document.querySelectorAll('.table-row-hover');
+    
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.cursor = 'pointer';
+        });
+        
+        row.addEventListener('click', function(e) {
+            if (!e.target.closest('button') && !e.target.closest('form')) {
+                tableRows.forEach(r => r.classList.remove('selected'));
+                this.classList.add('selected');
+            }
+        });
+    });
+});
+
+function loadEditData(batchId, payrollYear, payrollMonth, description, status) {
+    document.getElementById('editBatchId').value = batchId;
+    document.getElementById('editYear').value = payrollYear;
+    document.getElementById('editMonth').value = payrollMonth;
+    document.getElementById('editDescription').value = description;
+    document.getElementById('editStatus').value = status.trim();
+}
+</script>
